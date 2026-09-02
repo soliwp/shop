@@ -1,0 +1,128 @@
+﻿@model ProductUpdateView
+@{
+    ViewData["title"] = "ویرایش محصول";
+}
+<h1 class="text-center mb-5">
+    @ViewData["title"]
+</h1>
+@if (TempData["message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["message"]
+    </div>
+}
+<div class="text-center d-flex justify-content-center">
+    <form asp-action="update" asp-controller="product" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="@Model.ProductId"/>
+        <input class="form-control mb-3" type="text" asp-for="Name" placeholder="نام محصول" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+        
+        <input class="form-control mb-3" type="number" asp-for="Price" placeholder="قیمت محصول" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+        
+        <select class="mb-1 form-select" asp-for="ProductCategoryId" asp-items="@ViewBag.categories"></select>
+
+        <div class="row">
+            <div class="card col-6">
+                <div class="card-header bg-primary">
+                    عکس اصلی محصول
+                </div>
+                    <div class="card-body">
+                        @if(!string.IsNullOrEmpty(Model.ProductMainImageURL))
+                        {
+                            <div class="col-5">
+                                <img src="~/@Model.ProductMainImageURL" style="width:100%;object-fit:cover" />
+                            </div>
+                        }
+                        else
+                        {
+                            <p>
+                                عکسی وجود ندارد
+                            </p>
+                        }
+                    </div>
+                </div>
+
+            <div class="card col-6">
+                <div class="card-header bg-primary">
+                    عکس های اضافی محصول
+                </div>
+                <div class="card-body row">
+                        @if (Model.ProductImages.Any())
+                        {
+                            @foreach(var image in Model.ProductImages)
+                            {
+                                <div class="col-5" style="position:relative">
+                                    <img src="~/@image.ImageURL" style="width:100%;object-fit:cover" /> 
+
+                                    <button type="button" id="ConfirmDelete" class="btn btn-danger"
+                                        style="position:absolute;left:10px; top:0px"
+                                        data-image-id="@image.ImageId" data-product-id="@image.ProductId">
+                                        حذف عکس
+                                    </button>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>
+                                عکسی وجود ندارد
+                            </p>
+                        }
+                </div>
+            </div>
+        </div>
+
+
+        <label asp-for="MainImage" class="form-label">
+            عکس اصلی
+        </label>
+        <input type="file" asp-for="MainImage" class="mb-3 form-control" />
+        <span asp-validation-for="MainImage" class="text-danger d-block"></span>
+
+        <label asp-for="Images" class="form-label">
+            عکس اضافی
+        </label>
+        <input type="file" asp-for="Images" class="mb-3 form-control" multiple />
+        <span asp-validation-for="Images" class="text-danger"></span>
+
+        <br />
+        <button class="btn btn-success">
+            ویرایش
+        </button>
+    </form>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <h5>تایید حذف عکس</h5>
+                </div>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                آیا از حذف عکس مطمئن هستید
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger" id="deleteConfirmBtn" href="">حذف</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function DeleteImage(imageId , productId){
+                var url = '@Url.Action("deleteImage", "product")' + '?imageId=' + imageId + '&productId=' + productId;
+                document.getElementById("deleteConfirmBtn").setAttribute("href" , url);
+                var modal = new bootstrap.Modal(document.getElementById("deleteModal"));
+                modal.show()
+        }
+           document.getElementById("ConfirmDelete").addEventListener("click",function() {                
+                DeleteImage(this.dataset.imageId , this.dataset.productId)
+            })
+
+    </script>             
+}

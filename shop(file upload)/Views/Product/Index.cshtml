@@ -1,0 +1,148 @@
+﻿@model ProductListViewModel
+@{
+    ViewData["title"] = "لیست محصولات";
+}
+<h1 class="text-center">
+    @ViewData["title"]
+</h1>
+@if(TempData["message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["message"]  
+    </div>
+}
+<div class="text-center">
+    <form class="row justify-content-center" asp-controller="product" asp-action="index">
+        <input class="col-1 m-1" type="text" asp-for="@Model.Name" placeholder="نام محصول"/>
+        <select class="col-2 m-1" asp-for="@Model.CategoryId" asp-items="@ViewBag.categories">
+            <option value="0">دسته بندی محصول</option>
+        </select>
+        <input class="col-1 m-1" type="text" asp-for="@Model.MinPrice" placeholder="حداقل قیمت"/>
+        <input class="col-1 m-1" type="text" asp-for="@Model.MaxPrice" placeholder="حدااکثر قیمت"/>
+        <input class="col-1 m-1 btn btn-outline-primary" type="submit" value="جستجو"/>
+        <a class="btn btn-info col-2 m-1" asp-controller="product" asp-action="index">نمایش همه محصولات</a>
+        <input type="submit" class="btn btn-success col-1 m-1" asp-controller="product" asp-action="excelExport" value="خروجی اکسل">
+        <input type="submit" class="btn btn-outline-danger col-1 m-1" asp-controller="product" asp-action="PDFExport" value="خروجی PDF">
+    </form>
+</div>
+<div class="text-center mt-1">
+    <table class="table table-striped text-center">
+        <thead class="table-dark">
+            <th>شناسه محصول</th>
+            <th>نام محصول</th>
+            <th>دسته بندی محصول</th>
+            <th>عکس</th>
+            <th>قیمت</th>
+            <th>عملیات</th>
+        </thead>
+        <tbody>
+            @foreach(var product in Model.Products)
+            {
+                <tr>
+                    <td>@product.ProductId</td>
+                    <td>@product.Name</td>
+                    <td>@product.CategoryName</td>
+                    <td>
+                        <img style="max-width:70px;min-height:70px;" src="~/@product.MainImageURL" />
+                    </td>
+                    <td>@product.Price.ToString("N0")تومان </td>
+                    <td>
+                        <a asp-controller="product" asp-action="update" asp-route-id="@product.ProductId" class="btn btn-primary">
+                            ویرایش محصول
+                        </a>
+                        <a asp-controller="product" asp-action="productDetails" asp-route-id="@product.ProductId" class="btn btn-secondary">
+                            جزئیات محصول
+                        </a>
+                        <button asp-route-id="@product.ProductId" class="btn btn-danger" id="ConfirmDelete"
+                        data-product-id="@product.ProductId">
+                            حذف محصول
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if(Model.totalPage != 0)
+{
+    <nav dir="ltr">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(Model.currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" 
+                asp-route-name="@Model.Name"
+                asp-route-categoryid="@Model.CategoryId"
+                asp-route-maxPrice="@Model.MaxPrice"
+                asp-route-MinPrice="@Model.MinPrice"
+                asp-route-pageNumber="@(Model.currentPage - 1)">
+                قبلی
+            </a>
+        </li>
+
+        @for(int i = 1 ; i <= Model.totalPage; i++)
+        {
+            <li class="page-item @(Model.currentPage == i ? "active" : "")">
+                <a class="page-link"
+                   asp-route-name="@Model.Name"
+                   asp-route-categoryid="@Model.CategoryId"
+                   asp-route-maxPrice="@Model.MaxPrice"
+                   asp-route-MinPrice="@Model.MinPrice"
+                   asp-route-pageNumber="@i">
+                    @i
+                </a>
+            </li>
+        }
+
+        <li class="page-item @(Model.currentPage == Model.totalPage ? "disabled" : "")">
+            <a class="page-link" 
+                asp-route-name="@Model.Name"
+                asp-route-categoryid="@Model.CategoryId"
+                asp-route-maxPrice="@Model.MaxPrice"
+                asp-route-MinPrice="@Model.MinPrice"
+                asp-route-pageNumber="@(Model.currentPage + 1)">
+                بعدی
+            </a>
+        </li>
+    </ul>
+</nav>
+}
+else
+{
+    <p class="text-center">
+        محصولی یافت نشد
+    </p>
+}
+
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <h5>تایید حذف محصول</h5>
+                </div>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                آیا از حذف محصول مطمئن هستید
+            </div>
+            <div class="modal-footer">                
+                <a class="btn btn-danger" id="deleteConfirmBtn" href="">حذف</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function DeleteProduct(productId){
+                var url = '@Url.Action("DeleteProduct", "product")' + '?productId=' + productId;
+                document.getElementById("deleteConfirmBtn").setAttribute("href" , url);
+                var modal = new bootstrap.Modal(document.getElementById("deleteModal"));
+                modal.show()
+        }
+           document.getElementById("ConfirmDelete").addEventListener("click",function() {
+                DeleteProduct(this.dataset.productId)
+            })
+
+    </script>
+}

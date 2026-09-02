@@ -1,0 +1,60 @@
+﻿@model ProductImportViewModel
+@{
+    ViewData["title"] = "واردن کردن محصول با فایل excel";
+}
+<h1 class="text-center">
+    @ViewData["title"]
+</h1>
+@if (!string.IsNullOrEmpty(Model.message))
+{
+    <div class="alert alert-info">
+        @Model.message
+    </div>
+}
+<div class="text-center mt-3">
+    <span>
+        فایل فرمت اکسل برای وارد کردن محصولات
+    </span>
+    <a class="btn btn-success" asp-controller="product" asp-action="downloadExcelTemplate">
+        دانلود
+    </a>
+</div>
+<div class="text-center mt-3">
+    <form method="post" asp-controller="product" asp-action="importProduct" enctype="multipart/form-data">
+        <input asp-for="UploadFile" accept=".xlsx"/>
+        <input type="submit" class="btn btn-success" value="آپلود"/>
+    </form>
+</div>
+@if(Model.rows.Any())
+{
+    <div class="text-center mt-3">
+    <table class="table table-striped text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>محصول</th>
+                <th>وضعیت</th>
+                <th>پیغام</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var record in Model.rows)
+            {
+                <tr>
+                    <td>@record.Title</td>
+                    <td>
+                        @if (record.success)
+                        {
+                            <span class="text-success">موفق</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">ناموفق</span>
+                        }
+                    </td>
+                    <td>@record.message</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>   
+}

@@ -1,0 +1,85 @@
+﻿@using System.Text.Json
+@model ProductRepoortChart
+@{
+    ViewData["title"] = "نمودار تعداد محصولات هر درسته بندی‌ها";
+}
+<div style="width:500px;margin: 0px auto;" class="border border-1 border-black ">
+    <canvas id="chartPlace"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let labels = @Html.Raw(JsonSerializer.Serialize(Model.CategoriyName));
+        let productCount = @Html.Raw(JsonSerializer.Serialize(Model.ProductCount));
+        let chartPlace = document.getElementById("chartPlace");
+
+        new Chart(chartPlace,{
+            type:"bar",
+            data:{
+                labels:labels,
+                    datasets :[
+                        {                            
+                            data : productCount,
+                            backgroundColor:["royalblue" , "blueviolet" , "yellowgreen" ]
+                        }
+                    ]
+                },
+                options : {                    
+                    scales:{
+                        y : {
+                            grid : {
+                                display : false
+                            },
+                            ticks :{
+                                font : {
+                                    size : 20,
+                                    weight : "bold"
+                                }
+                            },
+                            title : {
+                                display : true,
+                                text : "تعداد محصولات",
+                                font :{
+                                    size : 22,
+                                    weight : "bold"
+                                }
+                            }
+                        },
+                        x : {
+                            grid : {
+                                display : false
+                            },
+                            ticks :{
+                                font : {
+                                    size : 20,
+                                    weight : "bold"
+                                }
+                            },
+                            title : {
+                                display : true,
+                                text : "دسته بندی محصولات",
+                                font :{
+                                    size : 22,
+                                    weight : "bold"
+                                }
+                            }
+                        },
+                    },
+                    plugins: {
+                        legend : {
+                            display : false
+                        },
+                        title : {
+                            display : true,
+                            text : "تعداد محصولات هر دسته بندی",
+                            font : {
+                                size : 23,
+                                weight : "bold"
+                            }
+                        }
+                    }
+                }                
+            })
+    </script>
+}

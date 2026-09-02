@@ -1,0 +1,39 @@
+﻿@model ProductCreationView
+@{
+    ViewData["title"] = "افزودن محصول";
+}
+<h1 class="text-center mb-5">
+    @ViewData["title"]
+</h1>
+@if (TempData["message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["message"]
+    </div>
+}
+<div class="text-center d-flex justify-content-center">
+    <form asp-action="Create" asp-controller="product" method="post" enctype="multipart/form-data">
+        <input class="form-control mb-3" type="text" asp-for="Name" placeholder="نام محصول" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+
+        <input class="form-control mb-3" type="number" asp-for="Price" placeholder="قیمت محصول" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+
+        <select class="mb-1 form-select" asp-for="CategoryId" asp-items="@ViewBag.categories"></select>
+        
+        <label asp-for="Images" class="form-label">
+            عکس اصلی
+        </label>
+        <input type="file" asp-for="MainImage" class="mb-3 form-control" />
+        <span asp-validation-for="MainImage" class="text-danger d-block"></span>
+
+        <label asp-for="Images" class="form-label">
+            عکس اضافی
+        </label>
+        <input type="file" asp-for="Images" class="mb-3 form-control" multiple />
+        <span asp-validation-for="Images" class="text-danger d-block"></span>
+        <button class="btn btn-success">
+            افزودن
+        </button>
+    </form>
+</div>
